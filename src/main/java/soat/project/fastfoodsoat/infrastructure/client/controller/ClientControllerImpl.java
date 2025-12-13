@@ -9,8 +9,8 @@ import soat.project.fastfoodsoat.infrastructure.client.model.request.ClientAuthR
 import soat.project.fastfoodsoat.infrastructure.client.model.request.CreateClientRequest;
 import soat.project.fastfoodsoat.infrastructure.client.model.response.ClientAuthResponse;
 import soat.project.fastfoodsoat.infrastructure.client.model.response.CreateClientResponse;
+import soat.project.fastfoodsoat.infrastructure.client.presenter.AuthClientPresenter;
 import soat.project.fastfoodsoat.infrastructure.client.presenter.ClientPresenter;
-import soat.project.fastfoodsoat.infrastructure.auth.presenter.AuthClientPresenter;
 
 @Component
 public class ClientControllerImpl implements ClientController {

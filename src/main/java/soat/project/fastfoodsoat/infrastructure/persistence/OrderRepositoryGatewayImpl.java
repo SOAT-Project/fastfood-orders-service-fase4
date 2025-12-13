@@ -17,7 +17,6 @@ import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
 import soat.project.fastfoodsoat.domain.order.OrderPublicId;
 import soat.project.fastfoodsoat.domain.pagination.Pagination;
 import soat.project.fastfoodsoat.domain.pagination.SearchQuery;
-import soat.project.fastfoodsoat.domain.payment.PaymentStatus;
 import soat.project.fastfoodsoat.domain.product.Product;
 import soat.project.fastfoodsoat.domain.product.ProductId;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
     }
 
     @Override
-    public Pagination<Order> findAllForStaff(boolean onlyPaid, final SearchQuery query) {
+    public Pagination<Order> findAllForStaff(final SearchQuery query) {
         final var page = PageRequest.of(
                 query.page(),
                 query.perPage(),
@@ -95,11 +94,7 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
         if (isNull(query.terms())) {
             final Page<OrderJpaEntity> pageResult;
 
-            if (onlyPaid) {
-                pageResult = this.orderRepository.findAllByPayment_Status(PaymentStatus.APPROVED, page);
-            } else {
-                pageResult = this.orderRepository.findAll(page);
-            }
+            pageResult = this.orderRepository.findAll(page);
 
             return new Pagination<>(
                     pageResult.getNumber(),
@@ -110,14 +105,14 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
         }
 
         final var terms = query.terms();
-        var pageResult = tryFindByPublicId(onlyPaid, terms, page);
+        var pageResult = tryFindByPublicId(terms, page);
 
         if (pageResult.isEmpty()) {
-            pageResult = tryFindByOrderNumber(onlyPaid, terms, page);
+            pageResult = tryFindByOrderNumber(terms, page);
         }
 
         if (pageResult.isEmpty()) {
-            pageResult = tryFindByProductName(onlyPaid, terms, page);
+            pageResult = tryFindByProductName(terms, page);
         }
 
         return new Pagination<>(
@@ -145,13 +140,9 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
         );
     }
 
-    private Page<OrderJpaEntity> tryFindByPublicId(final boolean onlyPaid, final String terms, final PageRequest page) {
+    private Page<OrderJpaEntity> tryFindByPublicId(final String terms, final PageRequest page) {
         try {
             final UUID uuid = UUID.fromString(terms);
-
-            if (onlyPaid) {
-                return orderRepository.findAllByPublicIdAndPayment_Status(uuid, PaymentStatus.APPROVED, page);
-            }
 
             return orderRepository.findByPublicId(uuid, page);
         } catch (IllegalArgumentException e) {
@@ -159,13 +150,9 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
         }
     }
 
-    private Page<OrderJpaEntity> tryFindByOrderNumber(final boolean onlyPaid, final String terms, final PageRequest page) {
+    private Page<OrderJpaEntity> tryFindByOrderNumber(final String terms, final PageRequest page) {
         try {
             final Integer orderNumber = Integer.valueOf(terms);
-
-            if (onlyPaid) {
-                return orderRepository.findAllByOrderNumberAndPayment_Status(orderNumber, PaymentStatus.APPROVED, page);
-            }
 
             return orderRepository.findByOrderNumber(orderNumber, page);
         } catch (NumberFormatException e) {
@@ -173,10 +160,7 @@ public class OrderRepositoryGatewayImpl implements OrderRepositoryGateway {
         }
     }
 
-    private Page<OrderJpaEntity> tryFindByProductName(final boolean onlyPaid, final String terms, final PageRequest page) {
-        if (onlyPaid) {
-                return orderRepository.findAllByOrderProducts_ProductNameContainingIgnoreCaseAndPayment_Status(terms, PaymentStatus.APPROVED, page);
-        }
+    private Page<OrderJpaEntity> tryFindByProductName(final String terms, final PageRequest page) {
         return orderRepository.findDistinctByOrderProductsProductNameContainingIgnoreCase(terms, page);
     }
 

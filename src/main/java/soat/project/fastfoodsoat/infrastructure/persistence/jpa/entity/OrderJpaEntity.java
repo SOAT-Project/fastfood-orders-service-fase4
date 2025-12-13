@@ -38,9 +38,6 @@ public class OrderJpaEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<OrderProductJpaEntity> orderProducts;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    private PaymentJpaEntity payment;
-
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
     private Instant createdAt;
@@ -60,7 +57,6 @@ public class OrderJpaEntity {
                           Integer orderNumber,
                           OrderStatus status,
                           List<OrderProductJpaEntity> orderProducts,
-                          PaymentJpaEntity payment,
                           Instant createdAt,
                           Instant updatedAt,
                           Instant deletedAt,
@@ -71,7 +67,6 @@ public class OrderJpaEntity {
         this.orderNumber = orderNumber;
         this.status = status;
         this.orderProducts = orderProducts;
-        this.payment = payment;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -161,13 +156,4 @@ public class OrderJpaEntity {
         this.orderProducts = orderProducts;
     }
 
-    public PaymentJpaEntity getPayment() {
-        return payment;
-    }
-
-    public void setPayment(PaymentJpaEntity paymentJpa) {
-        if (paymentJpa == null) return;
-
-        this.payment = paymentJpa;
-    }
 }

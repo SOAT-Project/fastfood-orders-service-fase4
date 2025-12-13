@@ -21,11 +21,6 @@ public interface OrderPresenter {
                 output.orderNumber(),
                 output.status(),
                 output.value().toString(),
-                new CreateOrderPaymentResponse(
-                        output.payment().status(),
-                        output.payment().externalReference(),
-                        output.payment().qrCode()
-                ),
                 output.orderProducts()
                         .stream()
                         .map(OrderProductPresenter::present)

@@ -1,17 +1,3 @@
--- Cargos
-insert into roles (role_name)
-values ('ADMIN'),
-       ('EMPLOYEE');
-
--- Funcionários
-insert into staff (name, email, cpf, is_active)
-values  ('John Doe', 'john.doe@email.com', '12345678901', TRUE),
-        ('Mark Doe', 'mark.doe@email.com', '12345678902', TRUE);
-
--- Cargos x Funcionários
-insert into staff_roles (staff_id, role_id)
-values  (1, 1), (2, 2);
-
 -- Categorias
 insert into product_categories (name)
 values  ('Lanche'),

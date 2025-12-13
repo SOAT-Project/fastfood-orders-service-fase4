@@ -52,7 +52,6 @@ dependencies {
 	}
 	implementation 'org.springframework.boot:spring-boot-starter-undertow'
 
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
@@ -76,7 +75,6 @@ dependencies {
 	// Spring Jakarta Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// Testcontainers para PostgreSQL

@@ -65,15 +65,6 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-security:
-  auth:
-    token:
-      expiration: ${AUTH_TOKEN_EXPIRATION:43200}
 
-mercadopago:
-  token: ${MP_TOKEN:APP_USR-2512049377508546-052123-386869c4214628b0e44f44f638bc2ebe-2448858150}
-  collectorId: ${COLLECTOR_ID:2448858150}
-  posId: ${POS_ID:SUC001POS001}
-  baseUrl: ${MP_BASE_URL:https://api.mercadopago.com}
 
 

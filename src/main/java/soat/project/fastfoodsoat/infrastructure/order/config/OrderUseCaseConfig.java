@@ -19,19 +19,13 @@ public class OrderUseCaseConfig {
     private final OrderRepositoryGateway orderRepositoryGateway;
     private final ProductRepositoryGateway productRepositoryGateway;
     private final ClientRepositoryGateway clientRepositoryGateway;
-    private final PaymentRepositoryGateway paymentRepositoryGateway;
-    private final PaymentService paymentService;
 
     public OrderUseCaseConfig(final OrderRepositoryGateway orderRepositoryGateway,
                               final ProductRepositoryGateway productRepositoryGateway,
-                              final ClientRepositoryGateway clientRepositoryGateway,
-                              final PaymentRepositoryGateway paymentRepositoryGateway,
-                              final PaymentService paymentService) {
+                              final ClientRepositoryGateway clientRepositoryGateway) {
         this.orderRepositoryGateway = orderRepositoryGateway;
         this.productRepositoryGateway = productRepositoryGateway;
         this.clientRepositoryGateway = clientRepositoryGateway;
-        this.paymentRepositoryGateway = paymentRepositoryGateway;
-        this.paymentService = paymentService;
     }
 
     @Bean
@@ -39,9 +33,7 @@ public class OrderUseCaseConfig {
     public CreateOrderUseCase createOrderUseCase() {
         return new CreateOrderUseCaseImpl(orderRepositoryGateway,
                                           productRepositoryGateway,
-                                          clientRepositoryGateway,
-                                          paymentRepositoryGateway,
-                                          paymentService);
+                                          clientRepositoryGateway);
     }
 
     @Bean

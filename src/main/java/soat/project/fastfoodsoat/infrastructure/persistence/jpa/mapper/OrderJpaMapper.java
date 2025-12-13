@@ -34,7 +34,6 @@ public final class OrderJpaMapper {
                         .filter(Objects::nonNull)
                         .map(OrderProductJpaMapper::fromJpa)
                         .toList() : null,
-                orderJpa.getPayment() != null ? PaymentJpaMapper.fromJpa(orderJpa.getPayment()) : null,
                 orderJpa.getCreatedAt(),
                 orderJpa.getUpdatedAt(),
                 orderJpa.getDeletedAt()
@@ -56,7 +55,6 @@ public final class OrderJpaMapper {
                         .filter(Objects::nonNull)
                         .map(OrderProductJpaMapper::fromJpa)
                         .toList() : null,
-                null,
                 orderJpa.getCreatedAt(),
                 orderJpa.getUpdatedAt(),
                 orderJpa.getDeletedAt()
@@ -72,7 +70,6 @@ public final class OrderJpaMapper {
                 order.getValue(),
                 order.getOrderNumber(),
                 order.getStatus(),
-                null,
                 null,
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
@@ -91,7 +88,6 @@ public final class OrderJpaMapper {
                 order.getValue(),
                 order.getOrderNumber(),
                 order.getStatus(),
-                null,
                 null,
                 order.getCreatedAt(),
                 order.getUpdatedAt(),

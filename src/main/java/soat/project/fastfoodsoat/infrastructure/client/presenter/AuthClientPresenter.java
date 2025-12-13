@@ -1,7 +1,7 @@
-package soat.project.fastfoodsoat.infrastructure.auth.presenter;
+package soat.project.fastfoodsoat.infrastructure.client.presenter;
 
-import soat.project.fastfoodsoat.infrastructure.client.model.response.ClientAuthResponse;
 import soat.project.fastfoodsoat.application.output.client.auth.AuthClientOutput;
+import soat.project.fastfoodsoat.infrastructure.client.model.response.ClientAuthResponse;
 
 public interface AuthClientPresenter {
     static ClientAuthResponse present(final AuthClientOutput output) {

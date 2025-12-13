@@ -1,11 +1,9 @@
 package soat.project.fastfoodsoat.domain.order;
 
-import soat.project.fastfoodsoat.domain.shared.AggregateRoot;
-import soat.project.fastfoodsoat.domain.shared.PublicIdentifier;
 import soat.project.fastfoodsoat.domain.client.ClientId;
 import soat.project.fastfoodsoat.domain.exception.NotificationException;
 import soat.project.fastfoodsoat.domain.orderproduct.OrderProduct;
-import soat.project.fastfoodsoat.domain.payment.Payment;
+import soat.project.fastfoodsoat.domain.shared.AggregateRoot;
 import soat.project.fastfoodsoat.domain.validation.ValidationHandler;
 import soat.project.fastfoodsoat.domain.validation.handler.Notification;
 
@@ -22,7 +20,6 @@ public class Order extends AggregateRoot<OrderId> {
     private OrderStatus status;
     private ClientId clientId;
     private final List<OrderProduct> orderProducts = new ArrayList<>();
-    private final Payment payment;
 
     private Order(
             final OrderId orderId,
@@ -32,7 +29,6 @@ public class Order extends AggregateRoot<OrderId> {
             final OrderStatus status,
             final ClientId clientId,
             final List<OrderProduct> orderProducts,
-            final Payment payment,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt
@@ -47,7 +43,6 @@ public class Order extends AggregateRoot<OrderId> {
         this.orderNumber = orderNumber;
         this.status = status;
         this.clientId = clientId;
-        this.payment = payment;
 
         if (orderProducts != null) this.orderProducts.addAll(orderProducts);
 
@@ -66,8 +61,7 @@ public class Order extends AggregateRoot<OrderId> {
             final OrderStatus status,
             final ClientId clientId,
             final BigDecimal value,
-            final List<OrderProduct> orderProducts,
-            final Payment payment
+            final List<OrderProduct> orderProducts
     ) {
         final OrderId orderId = null;
         final Instant now = Instant.now();
@@ -79,7 +73,6 @@ public class Order extends AggregateRoot<OrderId> {
                 status,
                 clientId,
                 orderProducts,
-                payment,
                 now,
                 now,
                 null
@@ -94,7 +87,6 @@ public class Order extends AggregateRoot<OrderId> {
             final OrderStatus status,
             final ClientId clientId,
             final List<OrderProduct> orderProducts,
-            final Payment payment,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt
@@ -107,7 +99,6 @@ public class Order extends AggregateRoot<OrderId> {
                 status,
                 clientId,
                 orderProducts,
-                payment,
                 createdAt,
                 updatedAt,
                 deletedAt
@@ -123,7 +114,6 @@ public class Order extends AggregateRoot<OrderId> {
                 order.status,
                 order.clientId,
                 order.orderProducts,
-                order.payment,
                 order.createdAt,
                 order.updatedAt,
                 order.deletedAt
@@ -187,10 +177,6 @@ public class Order extends AggregateRoot<OrderId> {
     public ClientId getClientId() {
         return clientId;
     }
-
-        public Payment getPayment () {
-            return payment;
-        }
 
         public static BigDecimal calculateValue ( final List<OrderProduct> orderProducts){
             if (orderProducts == null || orderProducts.isEmpty()) return null;

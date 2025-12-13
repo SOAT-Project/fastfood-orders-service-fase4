@@ -17,8 +17,6 @@ public class CleanUpExtension implements BeforeEachCallback {
 
         cleanUp(List.of(
                 appContext.getBean(ClientRepository.class),
-                appContext.getBean(StaffRoleRepository.class),
-                appContext.getBean(StaffRepository.class),
                 appContext.getBean(OrderRepository.class),
                 appContext.getBean(ProductRepository.class),
                 appContext.getBean(ProductCategoryRepository.class),

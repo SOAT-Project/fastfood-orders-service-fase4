@@ -18,7 +18,7 @@ public class ListOrderForStaffUseCaseImpl extends ListOrderForStaffUseCase {
         final var onlyPaid = command.onlyPaid();
         final var query = command.searchQuery();
 
-        return orderRepositoryGateway.findAllForStaff(onlyPaid, query)
+        return orderRepositoryGateway.findAllForStaff(query)
                 .map(ListOrderOutput::from);
     }
 }

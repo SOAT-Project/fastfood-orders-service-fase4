@@ -2,7 +2,9 @@ package soat.project.fastfoodsoat.application.usecase.order.create;
 
 import soat.project.fastfoodsoat.application.command.order.create.CreateOrderCommand;
 import soat.project.fastfoodsoat.application.command.order.create.CreateOrderProductCommand;
-import soat.project.fastfoodsoat.application.gateway.*;
+import soat.project.fastfoodsoat.application.gateway.ClientRepositoryGateway;
+import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
+import soat.project.fastfoodsoat.application.gateway.ProductRepositoryGateway;
 import soat.project.fastfoodsoat.application.output.order.create.CreateOrderOutput;
 import soat.project.fastfoodsoat.domain.client.Client;
 import soat.project.fastfoodsoat.domain.client.ClientPublicId;
@@ -12,8 +14,6 @@ import soat.project.fastfoodsoat.domain.order.Order;
 import soat.project.fastfoodsoat.domain.order.OrderPublicId;
 import soat.project.fastfoodsoat.domain.order.OrderStatus;
 import soat.project.fastfoodsoat.domain.orderproduct.OrderProduct;
-import soat.project.fastfoodsoat.domain.payment.Payment;
-import soat.project.fastfoodsoat.domain.payment.PaymentStatus;
 import soat.project.fastfoodsoat.domain.product.Product;
 import soat.project.fastfoodsoat.domain.product.ProductId;
 import soat.project.fastfoodsoat.domain.validation.handler.Notification;
@@ -27,20 +27,14 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
     private final OrderRepositoryGateway orderRepositoryGateway;
     private final ProductRepositoryGateway productRepositoryGateway;
     private final ClientRepositoryGateway clientRepositoryGateway;
-    private final PaymentRepositoryGateway paymentRepositoryGateway;
-    private final PaymentService paymentService;
 
     public CreateOrderUseCaseImpl(final OrderRepositoryGateway orderRepositoryGateway,
                                   final ProductRepositoryGateway productRepositoryGateway,
-                                  final ClientRepositoryGateway clientRepositoryGateway,
-                                  final PaymentRepositoryGateway paymentRepositoryGateway,
-                                  final PaymentService paymentService) {
+                                  final ClientRepositoryGateway clientRepositoryGateway){
       
         this.orderRepositoryGateway = orderRepositoryGateway;
         this.productRepositoryGateway = productRepositoryGateway;
         this.clientRepositoryGateway = clientRepositoryGateway;
-        this.paymentRepositoryGateway = paymentRepositoryGateway;
-        this.paymentService = paymentService;
     }
 
     @Override
@@ -68,8 +62,7 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
                         OrderStatus.RECEIVED,
                         clientId,
                         value,
-                        orderProductDomains,
-                        null
+                        orderProductDomains
                 )
         );
 
@@ -79,37 +72,10 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
 
         final Order createdOrder = orderRepositoryGateway.create(order);
 
-        final String qrCodeText = paymentService.createDynamicQrCode(
-                orderNumber,
-                externalReference,
-                value,
-                createdOrder.getOrderProducts()
-        );
-
-        if (qrCodeText == null) {
-            throw new NotificationException("could not create qr code", notification);
-        }
-
-        final Payment payment = notification.validate(() ->
-                Payment.newPayment(
-                        value,
-                        externalReference.toString(),
-                        qrCodeText,
-                        PaymentStatus.PENDING,
-                        createdOrder
-                )
-        );
-
         if (notification.hasError()) {
             throw new NotificationException("could not create payment", notification);
         }
-
-        final Payment createdPayment = paymentRepositoryGateway.create(payment);
-
-        return CreateOrderOutput.from(
-                createdOrder,
-                createdPayment
-        );
+        return CreateOrderOutput.from(createdOrder);
     }
 
     private Client getClientByPublicId(final ClientPublicId clientPublicId) {
