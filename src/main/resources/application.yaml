@@ -65,6 +65,17 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
+aws:
+  sqs:
+    order-to-kitchen:
+      queue-url: ${ORDER_TO_KITCHEN_QUEUE_URL}
+      queue-name: ${ORDER_TO_KITCHEN_NAME}
+    kitchen-to-order:
+      queue-url: ${KITCHEN_TO_ORDER_QUEUE_URL}
+      queue-name: ${KITCHEN_TO_ORDER_NAME}
+
+
+
 
 
 
