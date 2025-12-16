@@ -72,6 +72,9 @@ dependencies {
 	runtimeOnly('io.jsonwebtoken:jjwt-impl:0.12.5')
 	runtimeOnly('io.jsonwebtoken:jjwt-jackson:0.12.5')
 
+    //aws
+    implementation "io.awspring.cloud:spring-cloud-aws-starter-sqs"
+
 	// Spring Jakarta Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
@@ -82,6 +85,19 @@ dependencies {
 	testImplementation("org.testcontainers:postgresql:1.19.7")
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+
+}
+ext {
+    projectVersion = "3.0.2"
+}
+
+
+dependencyManagement {
+    imports {
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${projectVersion}"
+    }
 }
 
 tasks.named('test') {
