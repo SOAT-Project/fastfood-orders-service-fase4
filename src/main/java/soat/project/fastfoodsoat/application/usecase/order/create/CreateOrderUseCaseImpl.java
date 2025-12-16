@@ -59,7 +59,7 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
                 Order.newOrder(
                         OrderPublicId.of(publicId),
                         orderNumber,
-                        OrderStatus.RECEIVED,
+                        OrderStatus.PENDING,
                         clientId,
                         value,
                         orderProductDomains
