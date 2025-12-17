@@ -18,7 +18,7 @@ public class SqsOrderEventPublisher implements OrderEventPublisherGateway {
     private final ObjectMapper objectMapper;
 
     public SqsOrderEventPublisher(final SqsAsyncClient sqsAsyncClient,
-                                  @Value("${aws.sqs.order-o-kitchen.queue-url}") final String queueUrl,
+                                  @Value("${aws.sqs.order-to-kitchen.queue-url}") final String queueUrl,
                                   final ObjectMapper objectMapper) {
         this.sqsAsyncClient = sqsAsyncClient;
         this.queueUrl = queueUrl;
