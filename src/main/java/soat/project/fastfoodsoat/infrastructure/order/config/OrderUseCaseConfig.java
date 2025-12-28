@@ -3,10 +3,7 @@ package soat.project.fastfoodsoat.infrastructure.order.config;
 import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import soat.project.fastfoodsoat.application.gateway.ClientRepositoryGateway;
-import soat.project.fastfoodsoat.application.gateway.OrderEventPublisherGateway;
-import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
-import soat.project.fastfoodsoat.application.gateway.ProductRepositoryGateway;
+import soat.project.fastfoodsoat.application.gateway.*;
 import soat.project.fastfoodsoat.application.usecase.order.create.CreateOrderUseCase;
 import soat.project.fastfoodsoat.application.usecase.order.create.CreateOrderUseCaseImpl;
 import soat.project.fastfoodsoat.application.usecase.order.retrieve.list.ListOrderUseCase;
@@ -33,10 +30,15 @@ public class OrderUseCaseConfig {
 
     @Bean
     @Transactional
-    public CreateOrderUseCase createOrderUseCase() {
-        return new CreateOrderUseCaseImpl(orderRepositoryGateway,
-                                          productRepositoryGateway,
-                                          clientRepositoryGateway);
+    public CreateOrderUseCase createOrderUseCase(
+            PaymentEventPublisherGateway paymentEventPublisherGateway
+    ) {
+        return new CreateOrderUseCaseImpl(
+                orderRepositoryGateway,
+                productRepositoryGateway,
+                clientRepositoryGateway,
+                paymentEventPublisherGateway
+        );
     }
 
     @Bean

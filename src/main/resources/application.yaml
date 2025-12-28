@@ -73,6 +73,13 @@ aws:
     kitchen-to-order:
       queue-url: ${KITCHEN_TO_ORDER_QUEUE_URL}
       queue-name: ${KITCHEN_TO_ORDER_NAME}
+    payment-to-order:
+      queue-url: ${PAYMENT_TO_ORDER_QUEUE_URL}
+      queue-name: ${PAYMENT_TO_ORDER_NAME}
+    order-to-payment:
+      queue-url: ${ORDER_TO_PAYMENT_QUEUE_URL}
+      queue-name: ${ORDER_TO_PAYMENT_NAME}
+
 
 
 
