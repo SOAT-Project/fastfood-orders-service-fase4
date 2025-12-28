@@ -4,6 +4,7 @@ import soat.project.fastfoodsoat.application.command.order.create.CreateOrderCom
 import soat.project.fastfoodsoat.application.command.order.create.CreateOrderProductCommand;
 import soat.project.fastfoodsoat.application.gateway.ClientRepositoryGateway;
 import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
+import soat.project.fastfoodsoat.application.gateway.PaymentEventPublisherGateway;
 import soat.project.fastfoodsoat.application.gateway.ProductRepositoryGateway;
 import soat.project.fastfoodsoat.application.output.order.create.CreateOrderOutput;
 import soat.project.fastfoodsoat.domain.client.Client;
@@ -27,14 +28,18 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
     private final OrderRepositoryGateway orderRepositoryGateway;
     private final ProductRepositoryGateway productRepositoryGateway;
     private final ClientRepositoryGateway clientRepositoryGateway;
+    private final PaymentEventPublisherGateway paymentEventPublisherGateway;
 
     public CreateOrderUseCaseImpl(final OrderRepositoryGateway orderRepositoryGateway,
                                   final ProductRepositoryGateway productRepositoryGateway,
-                                  final ClientRepositoryGateway clientRepositoryGateway){
+                                  final ClientRepositoryGateway clientRepositoryGateway,
+                                  final PaymentEventPublisherGateway paymentEventPublisherGateway)
+    {
       
         this.orderRepositoryGateway = orderRepositoryGateway;
         this.productRepositoryGateway = productRepositoryGateway;
         this.clientRepositoryGateway = clientRepositoryGateway;
+        this.paymentEventPublisherGateway = paymentEventPublisherGateway;
     }
 
     @Override
@@ -71,10 +76,7 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
         }
 
         final Order createdOrder = orderRepositoryGateway.create(order);
-
-        if (notification.hasError()) {
-            throw new NotificationException("could not create payment", notification);
-        }
+        paymentEventPublisherGateway.publishOrderCreated(createdOrder);
         return CreateOrderOutput.from(createdOrder);
     }
 
