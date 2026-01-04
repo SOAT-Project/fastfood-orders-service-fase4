@@ -1,6 +1,7 @@
 package soat.project.fastfoodsoat.application.usecase.order.update.status;
 
 import soat.project.fastfoodsoat.application.command.order.update.status.UpdateOrderStatusCommand;
+import soat.project.fastfoodsoat.application.gateway.OrderEventPublisherGateway;
 import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
 import soat.project.fastfoodsoat.application.output.order.update.status.UpdateOrderStatusOutput;
 import soat.project.fastfoodsoat.domain.exception.IllegalStateException;
@@ -15,9 +16,12 @@ import java.util.Objects;
 public class UpdateOrderStatusUseCaseImpl extends UpdateOrderStatusUseCase {
 
     private final OrderRepositoryGateway orderRepositoryGateway;
+    private final OrderEventPublisherGateway orderEventPublisherGateway;
 
-    public UpdateOrderStatusUseCaseImpl(final OrderRepositoryGateway orderRepositoryGateway) {
+    public UpdateOrderStatusUseCaseImpl(final OrderRepositoryGateway orderRepositoryGateway,
+                                        final OrderEventPublisherGateway orderEventPublisherGateway) {
         this.orderRepositoryGateway = Objects.requireNonNull(orderRepositoryGateway);
+        this.orderEventPublisherGateway = orderEventPublisherGateway;
     }
 
     @Override
@@ -29,11 +33,16 @@ public class UpdateOrderStatusUseCaseImpl extends UpdateOrderStatusUseCase {
 
         final var newStatus = validateStatus(command.newStatus());
 
-        final var updatedOrder = order.updateStatus(
-                newStatus
-        );
+        if (order.getStatus().equals(newStatus)) {
+            return UpdateOrderStatusOutput.from(order);
+        }
 
+        final var updatedOrder = order.updateStatus(newStatus);
         final var savedOrder = orderRepositoryGateway.update(updatedOrder);
+
+        if (newStatus == OrderStatus.RECEIVED) {
+            orderEventPublisherGateway.publishOrderReceived(savedOrder);
+        }
 
         return UpdateOrderStatusOutput.from(savedOrder);
     }

@@ -15,11 +15,16 @@ import soat.project.fastfoodsoat.application.usecase.order.retrieve.list.ListOrd
 import soat.project.fastfoodsoat.domain.order.Order;
 import soat.project.fastfoodsoat.domain.order.OrderStatus;
 import soat.project.fastfoodsoat.domain.pagination.SearchQuery;
-import soat.project.fastfoodsoat.domain.payment.PaymentStatus;
 import soat.project.fastfoodsoat.domain.productcategory.ProductCategoryId;
-import soat.project.fastfoodsoat.infrastructure.persistence.jpa.entity.*;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.entity.OrderJpaEntity;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.entity.OrderProductJpaEntity;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.entity.ProductCategoryJpaEntity;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.entity.ProductJpaEntity;
 import soat.project.fastfoodsoat.infrastructure.persistence.jpa.mapper.OrderJpaMapper;
-import soat.project.fastfoodsoat.infrastructure.persistence.jpa.repository.*;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.repository.OrderProductRepository;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.repository.OrderRepository;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.repository.ProductCategoryRepository;
+import soat.project.fastfoodsoat.infrastructure.persistence.jpa.repository.ProductRepository;
 import soat.project.fastfoodsoat.shared.utils.InstantUtils;
 
 import java.math.BigDecimal;
@@ -46,9 +51,6 @@ public class ListOrderUseCaseIT {
 
     @Autowired
     private OrderProductRepository orderProductRepository;
-
-    @Autowired
-    private PaymentRepository paymentRepository;
 
     @BeforeEach
     public void individualTestSetup() {
@@ -129,7 +131,6 @@ public class ListOrderUseCaseIT {
                 null,
                 InstantUtils.now(),
                 InstantUtils.now(),
-                null,
                 null
         );
 
@@ -200,25 +201,10 @@ public class ListOrderUseCaseIT {
                 null,
                 InstantUtils.now(),
                 InstantUtils.now(),
-                null,
                 null
         );
 
         final var orderCreated = orderRepository.save(order);
-
-        final var payment = new PaymentJpaEntity(
-                null,
-                product3Created.getValue().multiply(BigDecimal.valueOf(product3Quantity)),
-                "ext-ref-1002",
-                "http://example.com/qr-code-1002",
-                PaymentStatus.PENDING,
-                orderCreated,
-                InstantUtils.now(),
-                InstantUtils.now(),
-                null
-        );
-
-        final var paymentCreated = paymentRepository.save(payment);
 
         final var orderProduct = new OrderProductJpaEntity(
                 null,
@@ -298,25 +284,10 @@ public class ListOrderUseCaseIT {
                 null,
                 InstantUtils.now().minusSeconds(3600), // Order created 1 hour ago
                 InstantUtils.now().minusSeconds(1800), // Order updated 30 minutes ago
-                null,
                 null
         );
 
         final var orderCreated = orderRepository.save(order);
-
-        final var payment = new PaymentJpaEntity(
-                null,
-                totalValue,
-                "ext-ref-1002",
-                "http://example.com/qr-code-1002",
-                PaymentStatus.APPROVED,
-                orderCreated,
-                InstantUtils.now(),
-                InstantUtils.now(),
-                null
-        );
-
-        final var paymentCreated = paymentRepository.save(payment);
 
         final var orderProduct1 = new OrderProductJpaEntity(
                 null,

@@ -1,5 +1,5 @@
 server:
-  port: ${APPLICATION_PORT:8080}
+  port: ${APPLICATION_PORT}
   servlet:
     context-path: /api
     encoding:
@@ -21,9 +21,9 @@ spring:
     name: fast-food-soat
 
   datasource:
-    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:postgres}
-    username: ${DATABASE_USER:postgres}
-    password: ${DATABASE_PASS:P@ssw0rd}
+    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -41,6 +41,17 @@ spring:
   jackson:
     serialization:
       indent_output: true
+
+  cloud:
+    aws:
+      sqs:
+        enabled: true
+
+        listener:
+          queue-not-found-strategy: fail
+          auto-startup: true
+
+        queue-attributes-resolver-strategy: NEVER
 
 management:
   endpoints:
@@ -65,6 +76,17 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-
-
-
+aws:
+  sqs:
+    order-to-kitchen:
+      queue-url: ${ORDER_TO_KITCHEN_QUEUE_URL}
+      queue-name: ${ORDER_TO_KITCHEN_NAME}
+    kitchen-to-order:
+      queue-url: ${KITCHEN_TO_ORDER_QUEUE_URL}
+      queue-name: ${KITCHEN_TO_ORDER_NAME}
+    payment-to-order:
+      queue-url: ${PAYMENT_TO_ORDER_QUEUE_URL}
+      queue-name: ${PAYMENT_TO_ORDER_NAME}
+    order-to-payment:
+      queue-url: ${ORDER_TO_PAYMENT_QUEUE_URL}
+      queue-name: ${ORDER_TO_PAYMENT_NAME}

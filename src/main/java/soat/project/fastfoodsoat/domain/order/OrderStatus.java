@@ -2,8 +2,9 @@ package soat.project.fastfoodsoat.domain.order;
 
 public enum OrderStatus {
 
+    PENDING,
     RECEIVED,
-    IN_PREPARATION,
+    PREPARING,
     READY,
     COMPLETED
 }

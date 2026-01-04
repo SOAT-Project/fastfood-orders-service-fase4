@@ -88,8 +88,7 @@ public class ListOrderUseCaseTest extends UseCaseTest {
                 OrderStatus.RECEIVED,
                 null,
                 orderProduct1.getValue().add(orderProduct2.getValue()),
-                List.of(orderProduct1, orderProduct2),
-                null
+                List.of(orderProduct1, orderProduct2)
         );
 
         final var orders = List.of(order);
