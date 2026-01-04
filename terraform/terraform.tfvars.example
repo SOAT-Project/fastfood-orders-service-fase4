@@ -1,0 +1,22 @@
+# terraform.tfvars.example
+
+aws_region  = "us-east-1"
+environment = "dev"
+
+# EKS
+eks_cluster_name  = "fastfood-soat-terraform"
+
+# RDS
+rds_instance_identifier = "fastfood-soat-terraform-postgres"
+rds_secret_name         = "fastfood-soat-terraform-rds-credentials"
+
+# SQS
+sqs_order_to_kitchen_name = "fastfood-soat-terraform-order-to-kitchen.fifo"
+sqs_kitchen_to_order_name = "fastfood-soat-terraform-kitchen-to-order"
+sqs_payment_to_order_name = "fastfood-soat-terraform-payment-to-order.fifo"
+sqs_order_to_payment_name = "fastfood-soat-terraform-order-to-payment.fifo"
+
+# Kubernetes
+kubernetes_namespace = "fastfood-orderservice"
+service_account_name = "fastfood-orderservice-sa"
+application_port     = "8080"
