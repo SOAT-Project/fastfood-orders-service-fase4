@@ -10,8 +10,6 @@ public class SqsConfig {
 
     @Bean
     public SqsAsyncClient sqsAsyncClient() {
-        return SqsAsyncClient.builder()
-                .region(Region.SA_EAST_1)
-                .build();
+        return SqsAsyncClient.builder().build();
     }
 }
