@@ -1,21 +1,17 @@
-# data.tf
-
-data "terraform_remote_state" "eks" {
-  backend = "s3"
-
-  config = {
-    bucket = "bucket-eks-fastfood"
-    key    = "eks/terraform.tfstate"
-    region = "sa-east-1"
-  }
-}
-
 
 ################################################################################
 # AWS Account
 ################################################################################
 
 data "aws_caller_identity" "current" {}
+
+################################################################################
+# IAM Role (criada na infra)
+################################################################################
+
+data "aws_iam_role" "order_service_irsa" {
+  name = var.irsa_role_name
+}
 
 ################################################################################
 # EKS Data Sources

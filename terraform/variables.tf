@@ -7,7 +7,7 @@
 variable "aws_region" {
   description = "AWS Region"
   type        = string
-  default     = "us-east-1"
+  default     = "sa-east-1"
 }
 
 variable "environment" {
@@ -83,4 +83,9 @@ variable "application_port" {
   description = "Porta da aplicação"
   type        = string
   default     = "8080"
+}
+
+variable "irsa_role_name" {
+  description = "Nome da IAM Role (IRSA) criada na infra"
+  type        = string
 }
