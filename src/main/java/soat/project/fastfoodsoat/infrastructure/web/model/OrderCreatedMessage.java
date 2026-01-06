@@ -1,19 +1,16 @@
 package soat.project.fastfoodsoat.infrastructure.web.model;
 
-import soat.project.fastfoodsoat.domain.client.ClientId;
-import soat.project.fastfoodsoat.domain.client.ClientPublicId;
 import soat.project.fastfoodsoat.domain.order.Order;
-import soat.project.fastfoodsoat.domain.order.OrderPublicId;
-import soat.project.fastfoodsoat.domain.product.ProductId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public record OrderCreatedMessage(
         String eventType,
-        OrderPublicId orderId,
-        ClientId customerId,
+        UUID orderId,
+        Integer customerId,
         BigDecimal totalAmount,
         List<Item> items,
         Instant createdAt
@@ -22,12 +19,12 @@ public record OrderCreatedMessage(
     public static OrderCreatedMessage from(Order order) {
         return new OrderCreatedMessage(
                 "ORDER_CREATED",
-                order.getPublicId(),
-                order.getClientId() != null ? order.getClientId() : null,
+                order.getPublicId().getValue(),
+                order.getClientId() != null ? order.getClientId().getValue() : null,
                 order.getValue(),
                 order.getOrderProducts().stream()
                         .map(p -> new Item(
-                                p.getProduct().getId(),
+                                p.getProduct().getId().getValue(),
                                 p.getQuantity(),
                                 p.getValue()
                         ))
@@ -37,7 +34,7 @@ public record OrderCreatedMessage(
     }
 
     public record Item(
-            ProductId productId,
+            Integer productId,
             Integer quantity,
             BigDecimal price
     ) {}
