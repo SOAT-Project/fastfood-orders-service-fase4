@@ -15,20 +15,6 @@ output "service_account" {
 }
 
 ################################################################################
-# IRSA Outputs
-################################################################################
-
-output "irsa_role_arn" {
-  description = "ARN da IAM Role (IRSA)"
-  value       = module.order_service_irsa.iam_role_arn
-}
-
-output "irsa_role_name" {
-  description = "Nome da IAM Role (IRSA)"
-  value       = module.order_service_irsa.iam_role_name
-}
-
-################################################################################
 # Kubernetes Resources
 ################################################################################
 
@@ -133,7 +119,6 @@ output "deployment_summary" {
 
   Namespace: ${var.kubernetes_namespace}
   Service Account: ${kubernetes_service_account.service_account.metadata[0].name}
-  IRSA Role: ${module.order_service_irsa.iam_role_arn}
 
   📊 Database:
     Host: ${data.aws_db_instance.postgres.address}

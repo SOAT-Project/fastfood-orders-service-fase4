@@ -18,7 +18,7 @@ resource "kubernetes_service_account" "service_account" {
     namespace = var.kubernetes_namespace
 
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.order_service_irsa.iam_role_arn
+      "eks.amazonaws.com/role-arn" = data.aws_iam_role.order_service_irsa.arn  # ← Mudou aqui
     }
   }
 
