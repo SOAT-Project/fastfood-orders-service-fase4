@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
+import soat.project.fastfoodsoat.application.gateway.ClientRepositoryGateway;
+import soat.project.fastfoodsoat.application.gateway.PaymentEventPublisherGateway;
+import soat.project.fastfoodsoat.application.output.order.create.CreateOrderOutput;
 import soat.project.fastfoodsoat.application.usecase.UseCaseTest;
 import soat.project.fastfoodsoat.application.command.order.create.CreateOrderCommand;
 import soat.project.fastfoodsoat.application.command.order.create.CreateOrderProductCommand;
@@ -11,6 +14,7 @@ import soat.project.fastfoodsoat.application.usecase.order.create.CreateOrderUse
 import soat.project.fastfoodsoat.domain.exception.NotFoundException;
 import soat.project.fastfoodsoat.domain.exception.NotificationException;
 import soat.project.fastfoodsoat.application.gateway.OrderRepositoryGateway;
+import soat.project.fastfoodsoat.domain.order.Order;
 import soat.project.fastfoodsoat.domain.order.OrderPublicId;
 import soat.project.fastfoodsoat.domain.product.Product;
 import soat.project.fastfoodsoat.application.gateway.ProductRepositoryGateway;
@@ -37,18 +41,28 @@ class CreateOrderUseCaseTest extends UseCaseTest {
     @Mock
     private ProductRepositoryGateway productRepositoryGateway;
 
+    @Mock
+    private ClientRepositoryGateway clientRepositoryGateway;
+
+    @Mock
+    private PaymentEventPublisherGateway paymentEventPublisherGateway;
+
     @Override
     protected List<Object> getMocks() {
-        return List.of(orderRepositoryGateway, productRepositoryGateway);
+        return List.of(
+                orderRepositoryGateway,
+                productRepositoryGateway,
+                clientRepositoryGateway,
+                paymentEventPublisherGateway
+        );
     }
 
     @Test
-    void givenValidCommand_whenCreateOrderWithoutClient_thenShouldReturnOrderPlubicId() {
+    void givenValidCommand_whenCreateOrderWithoutClient_thenShouldReturnOrderPublicId() {
 
         final var publicId = UUID.randomUUID();
         final var now = Instant.now();
-        final var categoryId = 10;
-        final var drinkCategoryId = 20;
+
         final var products = List.of(
                 new CreateOrderProductCommand(1, 2),
                 new CreateOrderProductCommand(2, 3)
@@ -57,36 +71,69 @@ class CreateOrderUseCaseTest extends UseCaseTest {
         final var command = new CreateOrderCommand(null, products);
 
         when(orderRepositoryGateway.findLastOrderNumber()).thenReturn(1);
-        when(productRepositoryGateway.findByIds(List.of(products.get(0).productId(), products.get(1).productId())))
+
+        when(productRepositoryGateway.findByIds(List.of(1, 2)))
                 .thenReturn(List.of(
-                        Product.with(ProductId.of(1), "X-Burger", "podrão de queijo", BigDecimal.valueOf(19.99), "burger.jpg", ProductCategoryId.of(categoryId), now, now, null),
-                        Product.with(ProductId.of(2), "Coca", "bebida boa", BigDecimal.valueOf(5.99), "coca.jpg", ProductCategoryId.of(drinkCategoryId), now, now, null)
-        ));
+                        Product.with(
+                                ProductId.of(1),
+                                "X-Burger",
+                                "podrão de queijo",
+                                BigDecimal.valueOf(19.99),
+                                "burger.jpg",
+                                ProductCategoryId.of(10),
+                                now,
+                                now,
+                                null
+                        ),
+                        Product.with(
+                                ProductId.of(2),
+                                "Coca",
+                                "bebida boa",
+                                BigDecimal.valueOf(5.99),
+                                "coca.jpg",
+                                ProductCategoryId.of(20),
+                                now,
+                                now,
+                                null
+                        )
+                ));
+
         when(orderRepositoryGateway.create(any())).thenAnswer(invocation -> {
-            final var order = invocation.getArgument(0);
+            final Order order = invocation.getArgument(0);
             ReflectionTestUtils.setField(order, "publicId", OrderPublicId.of(publicId));
             return order;
         });
 
-        final var output = useCase.execute(command);
+        doNothing()
+                .when(paymentEventPublisherGateway)
+                .publishOrderCreated(any());
+
+        final CreateOrderOutput output = useCase.execute(command);
 
         assertNotNull(output);
         assertEquals(publicId, output.publicId());
-        verify(orderRepositoryGateway, times(1)).findLastOrderNumber();
-        verify(orderRepositoryGateway, times(1)).create(any());
-        verify(productRepositoryGateway, times(1)).findByIds(any());
-    }
 
+        verify(orderRepositoryGateway).findLastOrderNumber();
+        verify(orderRepositoryGateway).create(any());
+        verify(productRepositoryGateway).findByIds(List.of(1, 2));
+        verify(paymentEventPublisherGateway).publishOrderCreated(any());
+    }
 
     @Test
     void givenEmptyProductList_whenCreateOrderWithoutClient_thenShouldThrowNotificationException() {
 
         final var command = new CreateOrderCommand(null, List.of());
 
-        final var ex = assertThrows(NotificationException.class, () -> useCase.execute(command));
+        final var ex = assertThrows(
+                NotificationException.class,
+                () -> useCase.execute(command)
+        );
 
         assertEquals("Order must have at least one product", ex.getMessage());
         assertTrue(ex.getErrors().isEmpty());
+
+        verify(orderRepositoryGateway, never()).create(any());
+        verify(paymentEventPublisherGateway, never()).publishOrderCreated(any());
     }
 
     @Test
@@ -99,18 +146,37 @@ class CreateOrderUseCaseTest extends UseCaseTest {
 
         final var command = new CreateOrderCommand(null, products);
 
-        final var ex = assertThrows(NotFoundException.class, () -> useCase.execute(command));
-        assertEquals("product with id 1 was not found", ex.getMessage());
-        verify(orderRepositoryGateway, never()).create(any());
-    }
+        when(productRepositoryGateway.findByIds(List.of(1, 5)))
+                .thenReturn(List.of(
+                        Product.with(
+                                ProductId.of(1),
+                                "X-Burger",
+                                "podrão de queijo",
+                                BigDecimal.valueOf(19.99),
+                                "burger.jpg",
+                                ProductCategoryId.of(10),
+                                Instant.now(),
+                                Instant.now(),
+                                null
+                        )
+                ));
 
+        final var ex = assertThrows(
+                NotFoundException.class,
+                () -> useCase.execute(command)
+        );
+
+        assertEquals("product with id 5 was not found", ex.getMessage());
+
+        verify(orderRepositoryGateway, never()).create(any());
+        verify(paymentEventPublisherGateway, never()).publishOrderCreated(any());
+    }
 
     @Test
     void givenInvalidOrder_whenCreateOrderWithoutClient_thenShouldThrowNotificationException() {
 
         final var now = Instant.now();
-        final var categoryId = 10;
-        final var drinkCategoryId = 20;
+
         final var products = List.of(
                 new CreateOrderProductCommand(1, 2),
                 new CreateOrderProductCommand(2, 3)
@@ -119,15 +185,42 @@ class CreateOrderUseCaseTest extends UseCaseTest {
         final var command = new CreateOrderCommand(null, products);
 
         when(orderRepositoryGateway.findLastOrderNumber()).thenReturn(-1);
-        when(productRepositoryGateway.findByIds(List.of(products.get(0).productId(), products.get(1).productId())))
+
+        when(productRepositoryGateway.findByIds(List.of(1, 2)))
                 .thenReturn(List.of(
-                        Product.with(ProductId.of(1), "X-Burger", "podrão de queijo", BigDecimal.valueOf(19.99), "burger.jpg", ProductCategoryId.of(categoryId), now, now, null),
-                        Product.with(ProductId.of(2), "Coca", "bebida boa", BigDecimal.valueOf(5.99), "coca.jpg", ProductCategoryId.of(drinkCategoryId), now, now, null)
+                        Product.with(
+                                ProductId.of(1),
+                                "X-Burger",
+                                "podrão de queijo",
+                                BigDecimal.valueOf(19.99),
+                                "burger.jpg",
+                                ProductCategoryId.of(10),
+                                now,
+                                now,
+                                null
+                        ),
+                        Product.with(
+                                ProductId.of(2),
+                                "Coca",
+                                "bebida boa",
+                                BigDecimal.valueOf(5.99),
+                                "coca.jpg",
+                                ProductCategoryId.of(20),
+                                now,
+                                now,
+                                null
+                        )
                 ));
 
-        final var ex = assertThrows(NotificationException.class, () -> useCase.execute(command));
+        final var ex = assertThrows(
+                NotificationException.class,
+                () -> useCase.execute(command)
+        );
+
         assertEquals("could not create order", ex.getMessage());
-        verify(orderRepositoryGateway, times(1)).findLastOrderNumber();
+
+        verify(orderRepositoryGateway).findLastOrderNumber();
         verify(orderRepositoryGateway, never()).create(any());
+        verify(paymentEventPublisherGateway, never()).publishOrderCreated(any());
     }
 }
