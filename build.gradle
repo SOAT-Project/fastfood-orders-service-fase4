@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'  // ← Plugin de coverage
+    id 'org.sonarqube' version '6.0.1.5171'  // ← Plugin do SonarQube
 }
 
 group = 'soat-project'
@@ -88,6 +90,11 @@ dependencies {
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    testImplementation "org.mockito:mockito-core:5.11.0"
+    testImplementation "org.mockito:mockito-inline:5.2.0"
+
+
+
 
 
 }
@@ -101,6 +108,89 @@ dependencyManagement {
         mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:${projectVersion}"
     }
 }
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/Application.class',
+                    '**/adapter/**',
+                    '**/port/**',
+                    '**/config/**',
+                    '**/dto/**',
+                    '**/entity/**'
+            ])
+        }))
+    }
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+    jvmArgs(
+            "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('byte-buddy-agent') }}",
+            "-XX:+EnableDynamicAgentLoading"
+    )
+}
+
+// Configuração do SonarQube
+sonar {
+    properties {
+        property "sonar.projectKey", "SOAT-Project_fastfood-order-service"
+        property "sonar.organization", "soat-project"
+        property "sonar.host.url", "https://sonarcloud.io"
+
+        property "sonar.java.source", "21"
+        property "sonar.sourceEncoding", "UTF-8"
+
+        // Diretórios
+        property "sonar.sources", "src/main/java"
+        property "sonar.tests", "src/test/java"
+        property "sonar.java.binaries", "build/classes/java/main"
+        property "sonar.java.test.binaries", "build/classes/java/test"
+
+        // Coverage
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+
+        // Exclusões
+        property "sonar.exclusions", [
+                "**/Dockerfile",
+                "**/*.md",
+                "**/*.yml",
+                "**/*.yaml",
+                "**/*.json",
+                "**/*.txt",
+                "**/resources/**/*.xml",
+                "**/resources/**/*.properties"
+        ].join(",")
+
+        property "sonar.coverage.exclusions", [
+                "**/Application.java",
+                "**/adapter/**",
+                "**/port/**",
+                "**/config/**",
+                "**/dto/**",
+                "**/entity/**"
+        ].join(",")
+
+        property "sonar.test.exclusions", "src/test/**/*"
+        property "sonar.cpd.exclusions", "src/test/**/*"
+    }
+}
+
+
 
 tasks.named('test') {
 	useJUnitPlatform()
