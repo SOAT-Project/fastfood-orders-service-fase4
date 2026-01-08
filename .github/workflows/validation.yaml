@@ -64,6 +64,9 @@ jobs:
           name: java-coverage-report
           path: build/reports/jacoco/test/
 
+      - name: Build classes
+        run: ./gradlew classes testClasses --no-daemon
+
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
