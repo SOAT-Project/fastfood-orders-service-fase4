@@ -136,6 +136,10 @@ jacocoTestReport {
     }
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -143,10 +147,6 @@ test {
             "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('byte-buddy-agent') }}",
             "-XX:+EnableDynamicAgentLoading"
     )
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }
 
 sonar {
