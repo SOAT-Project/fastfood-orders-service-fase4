@@ -88,8 +88,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
                 OrderStatus.RECEIVED,
                 null,
                 orderProduct1.getValue().add(orderProduct2.getValue()),
-                List.of(orderProduct1, orderProduct2),
-                null
+                List.of(orderProduct1, orderProduct2)
         );
 
         final var orders = List.of(order);
@@ -122,7 +121,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
                 .map(ListOrderOutput::from)
                 .toList();
 
-        when(orderRepositoryGateway.findAllForStaff(anyBoolean(), any())).thenReturn(expectedPagination);
+        when(orderRepositoryGateway.findAllForStaff(any())).thenReturn(expectedPagination);
 
         // When
         final var actualOutput = useCase.execute(params);
@@ -134,7 +133,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
         assertEquals(expectedTotal, actualOutput.total());
         assertEquals(expectedItems, actualOutput.items());
 
-        verify(orderRepositoryGateway, times(1)).findAllForStaff(anyBoolean(), any());
+        verify(orderRepositoryGateway, times(1)).findAllForStaff(any());
     }
 
     @Test
@@ -166,7 +165,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
                 orders
         );
 
-        when(orderRepositoryGateway.findAllForStaff(anyBoolean(), any())).thenReturn(expectedPagination);
+        when(orderRepositoryGateway.findAllForStaff(any())).thenReturn(expectedPagination);
 
         // When
         final var actualOutput = useCase.execute(params);
@@ -177,7 +176,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
         assertEquals(expectedTotal, actualOutput.total());
         assertEquals(List.<ListOrderOutput>of(), actualOutput.items());
 
-        verify(orderRepositoryGateway, times(1)).findAllForStaff(anyBoolean(),any());
+        verify(orderRepositoryGateway, times(1)).findAllForStaff(any());
     }
 
     @Test
@@ -201,7 +200,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
 
         final var expectedErrorMessage = "Gateway error";
 
-        when(orderRepositoryGateway.findAllForStaff(anyBoolean(), any()))
+        when(orderRepositoryGateway.findAllForStaff(any()))
                 .thenThrow(new IllegalStateException(expectedErrorMessage));
 
         // When
@@ -213,7 +212,7 @@ public class ListOrderForStaffUseCaseTest extends UseCaseTest {
         // Then
         Assertions.assertEquals(expectedErrorMessage, actualException.getMessage());
 
-        verify(orderRepositoryGateway, times(1)).findAllForStaff(anyBoolean(),any());
+        verify(orderRepositoryGateway, times(1)).findAllForStaff(any());
     }
 
 

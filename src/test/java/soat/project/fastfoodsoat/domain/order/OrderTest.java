@@ -32,7 +32,7 @@ class OrderTest {
         final var orderNumber = 1;
         final var status = OrderStatus.RECEIVED;
 
-        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, orderProduct, null);
+        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, orderProduct);
 
 
         assertNotNull(order);
@@ -57,7 +57,7 @@ class OrderTest {
         final var status = OrderStatus.RECEIVED;
         final var publicId = OrderPublicId.of(UUID.randomUUID());
 
-        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, null, null);
+        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, null);
 
         assertNotNull(order);
         assertNull(order.getId());
@@ -79,7 +79,7 @@ class OrderTest {
         final var clientId = ClientId.of(1);
 
         final var exception = assertThrows(NotificationException.class,
-                () -> Order.newOrder(publicId, orderNumber, status, clientId,null, null, null));
+                () -> Order.newOrder(publicId, orderNumber, status, clientId,null, null));
 
         assertEquals(1, exception.getErrors().size());
         assertEquals("'value' should not be null", exception.getErrors().get(0).message());
@@ -93,7 +93,7 @@ class OrderTest {
         final var clientId = ClientId.of(1);
 
         final var exception = assertThrows(NotificationException.class,
-                () -> Order.newOrder(publicId, orderNumber, status, clientId, BigDecimal.ZERO,null, null));
+                () -> Order.newOrder(publicId, orderNumber, status, clientId, BigDecimal.ZERO,null));
 
         assertEquals(1, exception.getErrors().size());
         assertEquals("'value' should be greater than zero", exception.getErrors().get(0).message());
@@ -116,7 +116,7 @@ class OrderTest {
         final var status = OrderStatus.RECEIVED;
 
         final var exception = assertThrows(NotificationException.class,
-                () -> Order.newOrder(publicId, null, status, clientId, null, orderProduct, null));
+                () -> Order.newOrder(publicId, null, status, clientId, null, orderProduct));
 
         assertEquals(1, exception.getErrors().size());
         assertEquals("'orderNumber' should not be null", exception.getErrors().get(0).message());
@@ -140,7 +140,7 @@ class OrderTest {
         final var orderNumber = 0;
 
         final var exception = assertThrows(NotificationException.class,
-                () -> Order.newOrder(publicId, orderNumber, status, clientId, null, orderProduct, null));
+                () -> Order.newOrder(publicId, orderNumber, status, clientId, null, orderProduct));
 
         assertEquals(1, exception.getErrors().size());
         assertEquals("'orderNumber' should be greater than zero", exception.getErrors().get(0).message());
@@ -163,7 +163,7 @@ class OrderTest {
         final var orderNumber = 1;
 
         final var exception = assertThrows(NotificationException.class,
-                () -> Order.newOrder(publicId, orderNumber, null, clientId, null, orderProduct, null));
+                () -> Order.newOrder(publicId, orderNumber, null, clientId, null, orderProduct));
 
         assertEquals(1, exception.getErrors().size());
         assertEquals("'status' should not be null", exception.getErrors().get(0).message());

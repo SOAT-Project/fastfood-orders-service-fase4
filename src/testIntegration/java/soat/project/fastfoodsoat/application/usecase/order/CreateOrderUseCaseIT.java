@@ -48,12 +48,8 @@ public class CreateOrderUseCaseIT {
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
 
-    @Autowired
-    private PaymentRepository paymentRepository;
-
     @BeforeEach
     void individualTestSetup() {
-        paymentRepository.deleteAll();
         orderProductRepository.deleteAll();
         orderRepository.deleteAll();
         productRepository.deleteAll();

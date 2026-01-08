@@ -30,10 +30,15 @@ public class OrderUseCaseConfig {
 
     @Bean
     @Transactional
-    public CreateOrderUseCase createOrderUseCase() {
-        return new CreateOrderUseCaseImpl(orderRepositoryGateway,
-                                          productRepositoryGateway,
-                                          clientRepositoryGateway);
+    public CreateOrderUseCase createOrderUseCase(
+            PaymentEventPublisherGateway paymentEventPublisherGateway
+    ) {
+        return new CreateOrderUseCaseImpl(
+                orderRepositoryGateway,
+                productRepositoryGateway,
+                clientRepositoryGateway,
+                paymentEventPublisherGateway
+        );
     }
 
     @Bean
@@ -47,7 +52,13 @@ public class OrderUseCaseConfig {
     }
 
     @Bean
-    public UpdateOrderStatusUseCase updateOrderStatusUseCase() {
-        return new UpdateOrderStatusUseCaseImpl(orderRepositoryGateway);
+    public UpdateOrderStatusUseCase updateOrderStatusUseCase(
+            OrderRepositoryGateway orderRepositoryGateway,
+            OrderEventPublisherGateway orderEventPublisherGateway
+    ) {
+        return new UpdateOrderStatusUseCaseImpl(
+                orderRepositoryGateway,
+                orderEventPublisherGateway
+        );
     }
 }

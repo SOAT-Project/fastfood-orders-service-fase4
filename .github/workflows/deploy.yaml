@@ -1,0 +1,71 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, develop]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set_environment:
+    runs-on: ubuntu-latest
+    outputs:
+      mapped_environment: ${{ steps.branch_map.outputs.environment }}
+
+    steps:
+      - id: branch_map
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          ENVIRONMENT=""
+
+          case "$BRANCH_NAME" in
+            "develop")
+              ENVIRONMENT="dev"
+              ;;
+            "main")
+              ENVIRONMENT="prod"
+              ;;
+            *)
+              echo "Branch $BRANCH_NAME não mapeada. Abortando."
+              exit 1
+              ;;
+          esac
+
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "Ambiente mapeado: $ENVIRONMENT"
+
+  build:
+    needs: set_environment
+    if: success()
+    uses: ./.github/workflows/docker.yaml
+    with:
+      image_name: srteixeiradias/order_service
+      image_tag: latest
+    secrets:
+      DOCKERHUB_LOGIN: ${{ secrets.DOCKERHUB_LOGIN }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  deploy:
+    needs: [set_environment, build]
+    if: success()
+    uses: ./.github/workflows/terraform.yaml
+    with:
+      environment: ${{ needs.set_environment.outputs.mapped_environment }}
+    secrets:
+      aws-assume-role-arn: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+      aws-region: ${{ secrets.AWS_REGION }}
+      aws-statefile-s3-bucket: ${{ secrets.AWS_STATEFILE_S3_BUCKET }}
+      aws-lock-dynamodb-table: ${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}
+      # Terraform Variables
+      eks-cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}
+      irsa-role-name: ${{ secrets.IRSA_ROLE_NAME }}
+      rds-instance-identifier: ${{ secrets.RDS_INSTANCE_IDENTIFIER }}
+      rds-secret-name: ${{ secrets.RDS_SECRET_NAME }}
+      sqs-order-to-kitchen-name: ${{ secrets.SQS_ORDER_TO_KITCHEN_NAME }}
+      sqs-kitchen-to-order-name: ${{ secrets.SQS_KITCHEN_TO_ORDER_NAME }}
+      sqs-payment-to-order-name: ${{ secrets.SQS_PAYMENT_TO_ORDER_NAME }}
+      sqs-order-to-payment-name: ${{ secrets.SQS_ORDER_TO_PAYMENT_NAME }}
+      kubernetes-namespace: ${{ secrets.KUBERNETES_NAMESPACE }}
+      service-account-name: ${{ secrets.SERVICE_ACCOUNT_NAME }}

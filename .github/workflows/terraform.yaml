@@ -1,0 +1,151 @@
+name: Terraform
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+    secrets:
+      # AWS
+      aws-assume-role-arn:
+        required: true
+      aws-region:
+        required: true
+      aws-statefile-s3-bucket:
+        required: true
+      aws-lock-dynamodb-table:
+        required: true
+      # Terraform Variables
+      eks-cluster-name:
+        required: true
+      irsa-role-name:
+        required: true
+      rds-instance-identifier:
+        required: true
+      rds-secret-name:
+        required: true
+      sqs-order-to-kitchen-name:
+        required: true
+      sqs-kitchen-to-order-name:
+        required: true
+      sqs-payment-to-order-name:
+        required: true
+      sqs-order-to-payment-name:
+        required: true
+      kubernetes-namespace:
+        required: true
+      service-account-name:
+        required: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws-assume-role-arn }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Read destroy config
+        id: read-destroy-config
+        run: |
+          DESTROY="$(jq -r '.${{ inputs.environment }}' ./terraform/destroy_config.json)"
+          echo "destroy=$DESTROY" >> $GITHUB_OUTPUT
+
+      - name: Terraform Init
+        run: |
+          cd terraform && terraform init \
+            -backend-config="bucket=${{ secrets.aws-statefile-s3-bucket }}" \
+            -backend-config="key=order-service/${{ inputs.environment }}/terraform.tfstate" \
+            -backend-config="region=${{ secrets.aws-region }}" \
+            -backend-config="dynamodb_table=${{ secrets.aws-lock-dynamodb-table }}"
+
+      - name: Terraform Validate
+        run: cd terraform && terraform validate
+
+      - name: Terraform Workspace
+        run: |
+          cd terraform
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+
+      - name: Terraform Destroy
+        if: steps.read-destroy-config.outputs.destroy == 'true'
+        env:
+          TF_VAR_aws_region: ${{ secrets.aws-region }}
+          TF_VAR_environment: ${{ inputs.environment }}
+          TF_VAR_eks_cluster_name: ${{ secrets.eks-cluster-name }}
+          TF_VAR_irsa_role_name: ${{ secrets.irsa-role-name }}
+          TF_VAR_rds_instance_identifier: ${{ secrets.rds-instance-identifier }}
+          TF_VAR_rds_secret_name: ${{ secrets.rds-secret-name }}
+          TF_VAR_sqs_order_to_kitchen_name: ${{ secrets.sqs-order-to-kitchen-name }}
+          TF_VAR_sqs_kitchen_to_order_name: ${{ secrets.sqs-kitchen-to-order-name }}
+          TF_VAR_sqs_payment_to_order_name: ${{ secrets.sqs-payment-to-order-name }}
+          TF_VAR_sqs_order_to_payment_name: ${{ secrets.sqs-order-to-payment-name }}
+          TF_VAR_kubernetes_namespace: ${{ secrets.kubernetes-namespace }}
+          TF_VAR_service_account_name: ${{ secrets.service-account-name }}
+          TF_VAR_application_port: "8080"
+        run: |
+          cd terraform
+          terraform destroy -auto-approve
+
+      - name: Terraform Plan
+        if: steps.read-destroy-config.outputs.destroy != 'true'
+        env:
+          TF_VAR_aws_region: ${{ secrets.aws-region }}
+          TF_VAR_environment: ${{ inputs.environment }}
+          TF_VAR_eks_cluster_name: ${{ secrets.eks-cluster-name }}
+          TF_VAR_irsa_role_name: ${{ secrets.irsa-role-name }}
+          TF_VAR_rds_instance_identifier: ${{ secrets.rds-instance-identifier }}
+          TF_VAR_rds_secret_name: ${{ secrets.rds-secret-name }}
+          TF_VAR_sqs_order_to_kitchen_name: ${{ secrets.sqs-order-to-kitchen-name }}
+          TF_VAR_sqs_kitchen_to_order_name: ${{ secrets.sqs-kitchen-to-order-name }}
+          TF_VAR_sqs_payment_to_order_name: ${{ secrets.sqs-payment-to-order-name }}
+          TF_VAR_sqs_order_to_payment_name: ${{ secrets.sqs-order-to-payment-name }}
+          TF_VAR_kubernetes_namespace: ${{ secrets.kubernetes-namespace }}
+          TF_VAR_service_account_name: ${{ secrets.service-account-name }}
+          TF_VAR_application_port: "8080"
+        run: |
+          cd terraform
+          terraform plan -out="${{ inputs.environment }}.plan"
+
+      - name: Terraform Apply
+        if: steps.read-destroy-config.outputs.destroy != 'true'
+        env:
+          TF_VAR_aws_region: ${{ secrets.aws-region }}
+          TF_VAR_environment: ${{ inputs.environment }}
+          TF_VAR_eks_cluster_name: ${{ secrets.eks-cluster-name }}
+          TF_VAR_irsa_role_name: ${{ secrets.irsa-role-name }}
+          TF_VAR_rds_instance_identifier: ${{ secrets.rds-instance-identifier }}
+          TF_VAR_rds_secret_name: ${{ secrets.rds-secret-name }}
+          TF_VAR_sqs_order_to_kitchen_name: ${{ secrets.sqs-order-to-kitchen-name }}
+          TF_VAR_sqs_kitchen_to_order_name: ${{ secrets.sqs-kitchen-to-order-name }}
+          TF_VAR_sqs_payment_to_order_name: ${{ secrets.sqs-payment-to-order-name }}
+          TF_VAR_sqs_order_to_payment_name: ${{ secrets.sqs-order-to-payment-name }}
+          TF_VAR_kubernetes_namespace: ${{ secrets.kubernetes-namespace }}
+          TF_VAR_service_account_name: ${{ secrets.service-account-name }}
+          TF_VAR_application_port: "8080"
+        run: |
+          cd terraform
+          terraform apply "${{ inputs.environment }}.plan"
+
+      - name: Get Outputs
+        if: steps.read-destroy-config.outputs.destroy != 'true'
+        run: |
+          cd terraform
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          terraform output deployment_summary >> $GITHUB_STEP_SUMMARY
