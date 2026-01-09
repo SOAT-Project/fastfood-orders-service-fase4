@@ -136,6 +136,10 @@ jacocoTestReport {
     }
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -145,53 +149,11 @@ test {
     )
 }
 
-// Configuração do SonarQube
 sonar {
     properties {
-        property "sonar.projectKey", "SOAT-Project_fastfood-order-service"
-        property "sonar.organization", "soat-project"
-        property "sonar.host.url", "https://sonarcloud.io"
-
-        property "sonar.java.source", "21"
-        property "sonar.sourceEncoding", "UTF-8"
-
-        // Diretórios
-        property "sonar.sources", "src/main/java"
-        property "sonar.tests", "src/test/java"
-        property "sonar.java.binaries", "build/classes/java/main"
-        property "sonar.java.test.binaries", "build/classes/java/test"
-
-        // Coverage
-        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
-
-        // Exclusões
-        property "sonar.exclusions", [
-                "**/Dockerfile",
-                "**/*.md",
-                "**/*.yml",
-                "**/*.yaml",
-                "**/*.json",
-                "**/*.txt",
-                "**/resources/**/*.xml",
-                "**/resources/**/*.properties"
-        ].join(",")
-
-        property "sonar.coverage.exclusions", [
-                "**/Application.java",
-                "**/adapter/**",
-                "**/port/**",
-                "**/config/**",
-                "**/dto/**",
-                "**/entity/**"
-        ].join(",")
-
-        property "sonar.test.exclusions", "src/test/**/*"
-        property "sonar.cpd.exclusions", "src/test/**/*"
+        property 'sonar.projectKey', 'SOAT-Project_fastfood-orders-service-fase4'
+        property 'sonar.organization', 'soat-project'
     }
 }
 
 
-
-tasks.named('test') {
-	useJUnitPlatform()
-}

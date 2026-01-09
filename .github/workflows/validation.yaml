@@ -64,6 +64,9 @@ jobs:
           name: java-coverage-report
           path: build/reports/jacoco/test/
 
+      - name: Build classes
+        run: ./gradlew classes testClasses --no-daemon
+
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
@@ -75,7 +78,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --no-daemon
+        run: ./gradlew sonar --no-daemon --info
 
   docker:
     name: Docker Build Validation
