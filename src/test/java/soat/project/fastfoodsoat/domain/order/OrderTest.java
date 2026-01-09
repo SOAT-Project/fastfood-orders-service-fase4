@@ -15,6 +15,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OrderTest {
 
+
+    @Test
+    void givenValidParams_withValue_whenCreateOrder_thenInstantiateOrder() {
+        final var clientId = ClientId.of(1);
+        final var value = BigDecimal.valueOf(25.00);
+        final var orderNumber = 1;
+        final var status = OrderStatus.RECEIVED;
+        final var publicId = OrderPublicId.of(UUID.randomUUID());
+
+        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, null);
+
+        assertNotNull(order);
+        assertNull(order.getId());
+        assertNotNull(order.getPublicId());
+        assertEquals(orderNumber, order.getOrderNumber());
+        assertEquals(status, order.getStatus());
+        assertEquals(value, order.getValue());
+        assertEquals(clientId, order.getClientId());
+        assertNotNull(order.getCreatedAt());
+        assertNotNull(order.getUpdatedAt());
+        assertNull(order.getDeletedAt());
+    }
+
     @Test
     void givenValidParams_whithoutValue_whenCreateOrder_thenInstantiateOrder() {
         final var clientId = ClientId.of(1);
@@ -47,28 +70,6 @@ class OrderTest {
         assertNotNull(order.getUpdatedAt());
         assertNull(order.getDeletedAt());
         assertEquals(1, order.getOrderProducts().size());
-    }
-
-    @Test
-    void givenValidParams_withValue_whenCreateOrder_thenInstantiateOrder() {
-        final var clientId = ClientId.of(1);
-        final var value = BigDecimal.valueOf(25.00);
-        final var orderNumber = 1;
-        final var status = OrderStatus.RECEIVED;
-        final var publicId = OrderPublicId.of(UUID.randomUUID());
-
-        final var order = Order.newOrder(publicId, orderNumber, status, clientId, value, null);
-
-        assertNotNull(order);
-        assertNull(order.getId());
-        assertNotNull(order.getPublicId());
-        assertEquals(orderNumber, order.getOrderNumber());
-        assertEquals(status, order.getStatus());
-        assertEquals(value, order.getValue());
-        assertEquals(clientId, order.getClientId());
-        assertNotNull(order.getCreatedAt());
-        assertNotNull(order.getUpdatedAt());
-        assertNull(order.getDeletedAt());
     }
 
     @Test
