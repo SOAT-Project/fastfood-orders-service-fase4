@@ -1,46 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fastfood-orderservice
-  namespace: fastfood-orderservice
+    name: fastfood-orderservice
+    namespace: fastfood-orderservice
 spec:
-  selector:
-    matchLabels:
-      app: fastfood-orderservice
-  template:
-    metadata:
-      labels:
-        app: fastfood-orderservice
-    spec:
-      serviceAccountName: fastfood-orderservice-sa
-      containers:
-        - name: fastfood-orderservice
-          image: srteixeiradias/order_service:latest
-          ports:
-            - containerPort: 8080
-          envFrom:
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: db-secret
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "1"
-              memory: "2Gi"
-          livenessProbe:
-            httpGet:
-              path: /api/actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /api/actuator/health/readiness
-              port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 5
-            failureThreshold: 3
+    selector:
+        matchLabels:
+            app: fastfood-orderservice
+    template:
+        metadata:
+            labels:
+                app: fastfood-orderservice
+        spec:
+            serviceAccountName: fastfood-orderservice-sa
+            containers:
+                - name: fastfood-orderservice
+                  image: soatproject/fastfood-order-service:latest
+                  ports:
+                      - containerPort: 8080
+                  envFrom:
+                      - configMapRef:
+                            name: app-config
+                      - secretRef:
+                            name: db-secret
+                  resources:
+                      requests:
+                          cpu: "500m"
+                          memory: "512Mi"
+                      limits:
+                          cpu: "1"
+                          memory: "2Gi"
+                  livenessProbe:
+                      httpGet:
+                          path: /api/actuator/health/liveness
+                          port: 8080
+                      initialDelaySeconds: 20
+                      periodSeconds: 10
+                      failureThreshold: 3
+                  readinessProbe:
+                      httpGet:
+                          path: /api/actuator/health/readiness
+                          port: 8080
+                      initialDelaySeconds: 20
+                      periodSeconds: 5
+                      failureThreshold: 3

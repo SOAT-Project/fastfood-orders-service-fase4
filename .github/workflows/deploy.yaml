@@ -41,7 +41,7 @@ jobs:
         if: success()
         uses: ./.github/workflows/docker.yaml
         with:
-            image_name: srteixeiradias/order_service
+            image_name: soatproject/fastfood-order-service
             image_tag: latest
         secrets:
             DOCKERHUB_LOGIN: ${{ secrets.DOCKERHUB_LOGIN }}
