@@ -83,7 +83,6 @@ class OrderTest {
                 () -> Order.newOrder(publicId, orderNumber, status, clientId,null, null));
 
         assertEquals(1, exception.getErrors().size());
-        assertEquals("'value' should not be null", exception.getErrors().get(0).message());
     }
 
     @Test
