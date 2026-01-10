@@ -152,7 +152,30 @@ test {
 sonar {
     properties {
         property 'sonar.projectKey', 'SOAT-Project_fastfood-orders-service-fase4'
+        property 'sonar.projectName', 'fastfood-orders-service-fase4'
         property 'sonar.organization', 'soat-project'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+
+        property 'sonar.java.binaries', 'build/classes/java/main'
+        property 'sonar.java.test.binaries', 'build/classes/java/test'
+
+        // Coverage
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+
+        // Exclusões mínimas
+        property 'sonar.exclusions', '**/Application.java'
+        property 'sonar.coverage.exclusions', [
+                '**/Application.java',
+                '**/application/command/**',
+                '**/application/gateway/**',
+                '**/application/output/**',
+                '**/infrastructure/**',
+                '**/shared/**',
+                '**/domain/exception/**',
+                '**/domain/pagination/**',
+                '**/domain/shared/**',
+                '**/domain/validation/**',
+        ].join(',')
     }
 }
 
