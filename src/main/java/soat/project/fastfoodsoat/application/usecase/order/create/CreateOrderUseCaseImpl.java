@@ -105,8 +105,7 @@ public class CreateOrderUseCaseImpl extends CreateOrderUseCase {
                 .findFirst()
                 .orElseThrow(() ->  NotFoundException.with(Product.class, new ProductId(orderProduct.productId())));
 
-            final BigDecimal orderProductValue = product.getValue()
-                .multiply(BigDecimal.valueOf(orderProduct.quantity()));
+            final BigDecimal orderProductValue = product.getValue();
 
             return OrderProduct.newOrderProduct(
                 orderProductValue,
