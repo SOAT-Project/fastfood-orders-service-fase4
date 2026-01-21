@@ -1,67 +1,76 @@
-# 📦 FastFood API
+# FastFood Order Service
 
-Este projeto é uma API RESTful para um sistema de pedidos de fast food, desenvolvida em Java com Spring Boot. A aplicação utiliza PostgreSQL como banco de dados e segue os princípios da Clean Architecture.
+## Pipeline de deploy e testes
 
-## 🚀 Formas de Deploy
+O projeto conta com uma pipeline automatizada que executa **build**, **testes automatizados** e **análise de qualidade** a cada alteração. Após a validação dos testes e das regras de qualidade, a aplicação é preparada para deploy no ambiente configurado.
 
-A aplicação pode ser executada de diversas formas. Confira abaixo as opções disponíveis e a documentação detalhada para cada uma:
+Durante a pipeline, os testes são executados e a cobertura de código é enviada para o **SonarCloud**, garantindo um nível mínimo de qualidade antes da entrega.
 
-- [📄 Deploy com Docker](./docs/docker.md)
-- [📄 Deploy com Kubernetes](./docs/kubernetes.md)
+---
 
-## 🧪 Testes
+## Endpoints
 
-### ✅ Testes Unitários
+### Criar cliente
 
-Execute os testes unitários com o seguinte comando:
-
-```bash
-./gradlew test
+**POST**
+```
+<EndpointAws>/fastfood-orderservice/clientes
 ```
 
-### 🔁 Testes de Integração
-
-Execute os testes de integração com o seguinte comando:
-
-```bash
-./gradlew testIntegration
-```
-
-Mais detalhes em: [📄 Documentação de Testes de Integração](./docs/integration-tests.md)
-
-## 📚 Swagger
-
-A documentação da API está disponível via Swagger, acessível em:
-
-```
-http://localhost:8080/api/swagger-ui/index.html
-```
-
-## 🗃️ Diagrama do Banco de Dados
-
-![Diagrama do Banco de Dados](./docs/diagrama-db.png)
-
-- [🔗 Acessar diagrama interativo](https://dbdiagram.io/d/FIAP-HEX-68101c011ca52373f5ba7756)
-
-## 🧭 Diagrama DDD
-
-- [🖼️ Visualizar Diagrama DDD (arquivo Draw.io)](./docs/diagrama-ddd.drawio)
-- [🔗 Acessar no Google Drive](https://drive.google.com/file/d/1jAH0o1r2prv5UD3AY6mZ57Uc93uPAPi9/view?usp=sharing)
-
-## ☁️ Arquitetura com Kubernetes
-
-![Arquitetura da Solução - Kubernetes](./docs/arquitetura-solucao.png)
-
-Essa imagem foi gerada utilizando o PlantUML. Você pode visualizar o código fonte do diagrama:
-- [📄 Arquivo PlantUML](./docs/arquitetura-solucao.puml)
-
-
-## 🧪 Teste Local
-
-Para gerar um token de autenticação, envie a seguinte identificação no endpoint `/auths`:
-
+**Body:**
 ```json
 {
-  "identification": "12345678901"
+  "name": "Nome do cliente",
+  "email": "nome.cliente@email.com",
+  "cpf": "12345678965"
 }
 ```
+
+---
+
+### Criar pedido
+
+**POST**
+```
+<EndpointAws>/fastfood-orderservice/orders
+```
+
+**Body:**
+```json
+{
+  "client_public_id": "uuid-do-cliente",
+  "products": [
+    { "product_id": 1, "quantity": 1 },
+    { "product_id": 2, "quantity": 3 },
+    { "product_id": 3, "quantity": 2 }
+  ]
+}
+```
+
+---
+
+### Listar pedidos
+
+**GET**
+```
+<EndpointAws>/fastfood-orderservice/orders?only_paid=false&page=0&per_page=10&sort=orderNumber&dir=asc&search=
+```
+
+---
+
+## Headers obrigatórios
+
+Em **todos os endpoints**, é necessário enviar o seguinte header:
+
+```
+Key: Host
+Value: fastfood-orderservice.example.com
+```
+
+---
+
+## Qualidade e cobertura de testes
+
+O projeto utiliza o **SonarCloud** para análise estática de código e acompanhamento da cobertura de testes. Atualmente, a aplicação conta com **88% de cobertura de testes**, validada pelo SonarCloud.
+
+![img.png](img.png)
